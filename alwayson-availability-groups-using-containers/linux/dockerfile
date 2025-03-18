@@ -1,45 +1,17 @@
-﻿# Base OS: Ubuntu 20.04 LTS
-FROM ubuntu:20.04
+﻿
+FROM mcr.microsoft.com/mssql/server:2019-latest
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/Brussels
 
-COPY linux/install-mssql.sh /usr/config/install-mssql.sh
+USER root
 
+COPY mssql/configure-mssql.sh /usr/config/configure-mssql.sh
 
-# Grant execute permissions
-RUN chmod +x /usr/config/install-mssql.sh \
-    && /usr/config/install-mssql.sh \
-    && rm -f /usr/config/install-mssql.sh  # Remove the script after execution to reduce image size
-
-# RUN apt-get update && apt-get install -yq wget software-properties-common apt-transport-https tzdata locales libcap2-bin \
-#     # timezone
-#     && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && dpkg-reconfigure --frontend noninteractive tzdata \
-#     # install SQL Server
-#     && wget -qO- https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
-#     && add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/20.04/mssql-server-2019.list)" \
-#     && apt-get update && apt-get install -yq mssql-server \
-#     # install SQL Server drivers and tools
-#     && add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/20.04/prod.list)" \
-#     && apt-get update && ACCEPT_EULA=Y apt-get install -yq msodbcsql17 mssql-tools \
-#     # Locale
-#     && locale-gen en_US.UTF-8 \
-#     # cleanup
-#     && apt-get clean && apt-get autoremove -y && rm -rf /var/lib/apt/lists/* \
-#     # mssql-tools
-#     && echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc \
-#     && echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bash_profile \
-#     && /bin/bash -c "source ~/.bashrc" \
-#     # creating directories
-#     && mkdir /var/opt/sqlserver \
-#     && mkdir /var/opt/sqlserver/data \
-#     && mkdir /var/opt/sqlserver/log \
-#     && mkdir /var/opt/sqlserver/backup \
-#     # set permissions on directories
-#     && chown -R mssql /var/opt/sqlserver \
-#     && chown -R mssql /var/opt/mssql \
-#     # Create a config directory
-#     && mkdir -p /usr/config
+# Provision and install SQL Server
+RUN chmod +x /usr/config/configure-mssql.sh \
+    && /usr/config/configure-mssql.sh \
+    && rm -f /usr/config/configure-mssql.sh  # Remove the script after execution to reduce image size
 
 WORKDIR /usr/config
 
@@ -49,23 +21,13 @@ COPY linux/configure-db.sh /usr/config
 COPY linux/ag.sql /usr/config
 COPY env/miscpassword.env /usr/config
 
-# Grant permissions and enable HADR
-RUN chmod +x /usr/config/entrypoint.sh \
-    && chmod +x /usr/config/configure-db.sh \
-    && chown -R mssql /usr/config \
-    # Grant sql the permissions to connect to ports <1024 as a non-root user
-    && setcap 'cap_net_bind_service+ep' /opt/mssql/bin/sqlservr \
-    # Allow dumps from the non-root process
-    && setcap 'cap_sys_ptrace+ep' /opt/mssql/bin/paldumper \
-    && setcap 'cap_sys_ptrace+ep' /usr/bin/gdb \
-    # Add an ldconfig file because setcap causes the os to remove LD_LIBRARY_PATH
-    # and other env variables that control dynamic linking
-    && mkdir -p /etc/ld.so.conf.d && touch /etc/ld.so.conf.d/mssql.conf \
-    && echo -e "# mssql libs\n/opt/mssql/lib" >> /etc/ld.so.conf.d/mssql.conf \
-    && ldconfig \
-    # enable hadr
-    && /opt/mssql/bin/mssql-conf set hadr.hadrenabled  1 \
-    && /opt/mssql/bin/mssql-conf set sqlagent.enabled true
+# Copy and execute the MSSQL configuration script
+COPY mssql/enable-ha-and-dr.sh /usr/config/enable-ha-and-dr.sh
+
+# Enable HA and DR
+RUN chmod +x /usr/config/enable-ha-and-dr.sh \
+    && /usr/config/enable-ha-and-dr.sh \
+    && rm -f /usr/config/enable-ha-and-dr.sh  # Remove script after execution to reduce image size
 
 EXPOSE 1433
 

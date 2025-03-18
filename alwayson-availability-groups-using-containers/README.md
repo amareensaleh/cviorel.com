@@ -26,12 +26,12 @@ docker build -t mssql2019-custom -f linux/dockerfile .
 ## Run the container(s)
 Spin up the 3 node AG:
 ```
-docker-compose -f linux/docker-compose.yaml up -d
+docker-compose -f linux/docker-compose.yml up -d
 ```
 
 ## Stop the container(s)
 ```
-docker-compose -f linux/docker-compose.yaml down
+docker-compose -f linux/docker-compose.yml down
 ```
 
 Note: MSSQL passwords must be at least 8 characters long, contain upper case, lower case and digits.  
