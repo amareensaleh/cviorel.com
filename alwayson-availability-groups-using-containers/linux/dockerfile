@@ -6,32 +6,26 @@ ENV TZ=Europe/Brussels
 
 USER root
 
+# Bundle config and env files
+# RUN mkdir -p /usr/config
+COPY mssql/entrypoint.sh /usr/config/entrypoint.sh
+COPY mssql/configure-db.sh /usr/config/configure-db.sh
+COPY mssql/ag.sql /usr/config/ag.sql
 COPY mssql/configure-mssql.sh /usr/config/configure-mssql.sh
+COPY mssql/enable-ha-and-dr.sh /usr/config/enable-ha-and-dr.sh
+COPY env/miscpassword.env /usr/config/miscpassword.env
 
 # Provision and install SQL Server
-RUN chmod +x /usr/config/configure-mssql.sh \
-    && /usr/config/configure-mssql.sh \
-    && rm -f /usr/config/configure-mssql.sh  # Remove the script after execution to reduce image size
+RUN chmod +x /usr/config/entrypoint.sh
+RUN chmod +x /usr/config/configure-db.sh
+RUN chmod +x /usr/config/configure-mssql.sh
+RUN chmod +x /usr/config/enable-ha-and-dr.sh
 
-WORKDIR /usr/config
-
-# Bundle config source
-COPY linux/entrypoint.sh /usr/config
-COPY linux/configure-db.sh /usr/config
-COPY linux/ag.sql /usr/config
-COPY env/miscpassword.env /usr/config
-
-# Copy and execute the MSSQL configuration script
-COPY mssql/enable-ha-and-dr.sh /usr/config/enable-ha-and-dr.sh
-
-# Enable HA and DR
-RUN chmod +x /usr/config/enable-ha-and-dr.sh \
-    && /usr/config/enable-ha-and-dr.sh \
-    && rm -f /usr/config/enable-ha-and-dr.sh  # Remove script after execution to reduce image size
+RUN /bin/bash /usr/config/configure-mssql.sh
+RUN /bin/bash /usr/config/enable-ha-and-dr.sh
 
 EXPOSE 1433
 
-# switch to the mssql user
 USER mssql
 
 ENTRYPOINT [ "/bin/bash", "/usr/config/entrypoint.sh" ]
