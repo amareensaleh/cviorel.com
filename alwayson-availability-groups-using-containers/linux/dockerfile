@@ -26,6 +26,7 @@ RUN /bin/bash /usr/config/configure-mssql.sh
 RUN /bin/bash /usr/config/enable-ha-and-dr.sh
 
 EXPOSE 1433
+EXPOSE 1500
 
 USER mssql
 
