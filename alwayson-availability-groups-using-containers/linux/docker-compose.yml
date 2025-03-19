@@ -4,9 +4,6 @@ services:
         image: mssql2019-custom:latest
         hostname: sql_node_01
         domainname: lab.local
-        build:
-           context: .
-           dockerfile: dockerfile
         ports:
             - "20001:1433"
         extra_hosts:
@@ -29,9 +26,6 @@ services:
         image: mssql2019-custom:latest
         hostname: sql_node_02
         domainname: lab.local
-        build:
-           context: .
-           dockerfile: dockerfile
         ports:
             - "20002:1433"
         extra_hosts:
@@ -54,9 +48,6 @@ services:
         image: mssql2019-custom:latest
         hostname: sql_node_03
         domainname: lab.local
-        build:
-           context: .
-           dockerfile: dockerfile
         ports:
             - "20003:1433"
         extra_hosts:
