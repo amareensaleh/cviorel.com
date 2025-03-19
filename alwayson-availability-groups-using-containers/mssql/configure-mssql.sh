@@ -18,17 +18,12 @@ echo "Setting locale..."
 locale-gen en_US.UTF-8
 
 echo "Cleaning up unused packages..."
-apt-get clean && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
-
-#echo "Adding SQL Server tools to PATH..."
-#echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
-#echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bash_profile
-#/bin/bash -c "source ~/.bashrc"
+apt-get clean && apt-get autoremove -y
 
 #echo "Creating required directories..."
-#mkdir -p /var/opt/sqlserver/data /var/opt/sqlserver/log /var/opt/sqlserver/backup
-#chown -R mssql /var/opt/sqlserver
-#chown -R mssql /var/opt/mssql
+mkdir -p /var/opt/sqlserver/data /var/opt/sqlserver/log /var/opt/sqlserver/backup
+chown -R mssql /var/opt/sqlserver
+chown -R mssql /var/opt/mssql
 
 echo "Granting permissions for non-root execution..."
 setcap 'cap_net_bind_service+ep' /opt/mssql/bin/sqlservr
