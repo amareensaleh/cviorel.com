@@ -11,6 +11,7 @@ USER root
 COPY mssql/entrypoint.sh /usr/config/entrypoint.sh
 COPY mssql/configure-db.sh /usr/config/configure-db.sh
 COPY mssql/ag.sql /usr/config/ag.sql
+COPY mssql/ag-listener.sql /usr/config/ag-listener.sql
 COPY mssql/configure-mssql.sh /usr/config/configure-mssql.sh
 COPY mssql/enable-ha-and-dr.sh /usr/config/enable-ha-and-dr.sh
 COPY env/miscpassword.env /usr/config/miscpassword.env

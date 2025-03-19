@@ -30,4 +30,5 @@ echo ":: $(date '+%F %T') Setting up the Availability Group"
 # We run this only from the first node that will be the primary
 if [[ $(hostname -s) = "sql_node_01" ]]; then
     /opt/mssql-tools18/bin/sqlcmd -S localhost -C -U sa -P $MSSQL_SA_PASSWORD -d master -i /usr/config/ag.sql
+    /opt/mssql-tools18/bin/sqlcmd -S localhost -C -U sa -P $MSSQL_SA_PASSWORD -d master -i /usr/config/ag-listener.sql
 fi
