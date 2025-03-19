@@ -1,0 +1,1 @@
+docker exec -it sql_node_01 /bin/bash
